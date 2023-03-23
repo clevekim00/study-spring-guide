@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/datasolution?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
+    username: datasolution
+    password: datasolution
+# If you get a Table 'BATCH_JOB_INSTANCE' doesn't exist error at the first execution, you need to add this setting.
+  batch:
+    jdbc:
+      initialize-schema: always
