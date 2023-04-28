@@ -4,7 +4,6 @@ import com.mongodb.client.result.DeleteResult
 import me.clevekim.springguide.reactivemongodb.document.Account
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
-import org.springframework.data.mongodb.core.remove
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono

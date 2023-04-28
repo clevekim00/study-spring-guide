@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:file="http://www.springframework.org/schema/integration/file"
+       xmlns:feed="http://www.springframework.org/schema/integration/feed"
+       xsi:schemaLocation="http://www.springframework.org/schema/integration/feed https://www.springframework.org/schema/integration/feed/spring-integration-feed.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/integration/file https://www.springframework.org/schema/integration/file/spring-integration-file.xsd
+		http://www.springframework.org/schema/integration https://www.springframework.org/schema/integration/spring-integration.xsd">
+
+    <!--
+    설문당 하나씩 게시물을 검색하는 인바운드 어댑터. 여기에 구성된 대로 5초마다 폴링합니다.
+    게시물은 뉴스(어댑터의 ID에 해당)라는 채널에 배치됩니다.
+    -->
+    <feed:inbound-channel-adapter id="news" url="https://spring.io/blog.atom" auto-startup="${auto.startup:true}">
+        <int:poller fixed-rate="5000"/>
+    </feed:inbound-channel-adapter>
+
+    <!--
+    뉴스 채널의 항목(com.rometools.rome.feed.synd.SyndEntry)을 변환하여 항목의 제목(payload.title)과
+    링크(payload.link)를 추출하고 읽을 수 있는 문자열로 연결합니다(개행 추가).
+    그런 다음 String은 file이라는 출력 채널로 전송됩니다.
+    -->
+    <int:transformer
+            input-channel="news"
+            expression="payload.title + ' @ ' + payload.link + '#{systemProperties['line.separator']}'"
+            output-channel="file"/>
+
+    <!--
+    해당 채널(이름이 지정된 파일)의 콘텐츠를 파일에 쓰는 아웃바운드 채널 어댑터입니다.
+    특히 여기에 구성된 대로 파일 채널의 모든 항목을 /tmp/si/SpringBlog의 파일에 추가합니다.
+    -->
+    <file:outbound-channel-adapter id="file"
+                                   mode="APPEND"
+                                   charset="UTF-8"
+                                   directory="/tmp/si"
+                                   filename-generator-expression="'${feed.file.name:SpringBlog}'"/>
+
+</beans>
